@@ -46,7 +46,7 @@ const PhoneNumber = forwardRef(
         <div class="form-group row">
           <label htmlFor="phoneNumber" class="col-form-label">Phone Number</label>
 
-          <input type="tel" class="form-control" placeholder="Enter phone number" name="phoneNumber"  ref={ref} value={props.countryCode}/>
+          <input type="tel" class="form-control" placeholder="Enter phone number" name="phoneNumber"  ref={ref} value={props.phoneNumber} onChange={props.onPhoneNumberChange}/>
         </div>
     )
   }
@@ -96,6 +96,7 @@ function Form(){
   // const [birthDate, setBirthDate] = useState(new Date(1990,0,1));
   const [birthDate, dispatch] = useReducer(birthDateReducer, new Date(1990,0,1));
   const [invalidEmail, setInvalidEmail] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState(undefined);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -103,15 +104,20 @@ function Form(){
   }
 
   function handleCountryChanged(e) {
-    alert('country selected')
     console.log(phoneRef.current);
     console.log(countryRef.current);
     phoneRef.current.value= countryRef.current.value;
   }
 
-  function handleCountryChangedState(e) {
-    alert('country selected')
-    setCountry(e.target.value);
+  function handleCountryChangedState(e) 
+  {
+    setCountry(e.target.value); 
+    if(phoneNumber == ''){
+      console.log('set country code');
+      setPhoneNumber(country + '  ')
+    }else{
+      setPhoneNumber(country + phoneNumber.substring(3))
+    }
   }
 
   /*
@@ -190,12 +196,17 @@ function Form(){
     console.log({invalidEmail});
   }
 
+  function onPhoneNumberChange(event){
+
+    setPhoneNumber(event.target.value)
+  }
+
   console.log("Form ", birthDate);  
   return (
     <h1>Register into my awesome system</h1>,
     <form onSubmit={handleSubmit}>
       <CountrySelect handleSelect={handleCountryChangedState} ref={countryRef} countryCode={country}/>
-      <PhoneNumber ref={phoneRef} countryCode={country}/>
+      <PhoneNumber ref={phoneRef} countryCode={country} phoneNumber={phoneNumber} onPhoneNumberChange={onPhoneNumberChange}/>
       <EmailTextEdit handleInput={validateEmail}/>
       <EmailAlert  invalidEmail={invalidEmail}/>
       <BirthDateEdit handleYearChanged={handleYearChanged} handleMonthChanged={handleMonthChanged} handleDayChanged={handleDayChanged} birthDate={birthDate}/>
