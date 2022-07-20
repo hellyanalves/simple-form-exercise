@@ -8,11 +8,19 @@ const countries = [
   { title: 'Mexico', id: 2 }
 ];
 
-function EmailTextEdit() {
+function EmailAlert(props){
+  if(props.invalidEmail){
+   return (
+      <label class="alert alert-warning" id="emailAlert">Invalid e-mail address</label>
+    );
+  }
+}
+
+function EmailTextEdit(props) {
   return (    
     <div class="form-group row">
-      <label htmlFor="email" class="col-form-label">Email</label>
-      <input class="form-control" type="text" name="email" placeholder="example@email.com"/>
+      <label htmlFor="txtEmail" class="col-form-label">Email</label>
+      <input class="form-control" type="text" name="txtEmail" placeholder="example@email.com" onChange={(event) => props.handleInput(event)}/>
     </div>
   );
 }
@@ -61,7 +69,7 @@ function BirthDateEdit(props) {
   
   return (    
     <div class="form-group row">
-      <label htmlFor="birth-year" class="col-form-label">Email</label>
+      <label htmlFor="birth-year" class="col-form-label">Enter your birth date</label>
       <select class="col-sm-2  form-control" type="select" name="birth-year" id="birth-year" onChange={props.handleYearChanged} value={props.birthDate.getYear()}>
         <option>1990</option>
         <option>1991</option>
@@ -87,6 +95,7 @@ function Form(){
   const [country, setCountry] = useState(undefined);
   // const [birthDate, setBirthDate] = useState(new Date(1990,0,1));
   const [birthDate, dispatch] = useReducer(birthDateReducer, new Date(1990,0,1));
+  const [invalidEmail, setInvalidEmail] = useState(false);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -166,13 +175,29 @@ function Form(){
     }
   }
 
+  function validateEmail(event){
+    const emailValue = event.target.value;
+    console.log(emailValue !== '');
+    console.log({emailValue});
+    console.log({invalidEmail});
+    if((/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})*(\.\w{2,3})+$/.test(emailValue) || (emailValue == ''))){
+      console.log('ho')
+      setInvalidEmail(false);
+    }else{
+      console.log('hey')
+      setInvalidEmail(true);
+    }
+    console.log({invalidEmail});
+  }
+
   console.log("Form ", birthDate);  
   return (
     <h1>Register into my awesome system</h1>,
     <form onSubmit={handleSubmit}>
       <CountrySelect handleSelect={handleCountryChangedState} ref={countryRef} countryCode={country}/>
       <PhoneNumber ref={phoneRef} countryCode={country}/>
-      <EmailTextEdit/>
+      <EmailTextEdit handleInput={validateEmail}/>
+      <EmailAlert  invalidEmail={invalidEmail}/>
       <BirthDateEdit handleYearChanged={handleYearChanged} handleMonthChanged={handleMonthChanged} handleDayChanged={handleDayChanged} birthDate={birthDate}/>
       <SubmitFormButton/>
     </form>
@@ -186,7 +211,7 @@ function App() {
         <h1>Register into my amazing app</h1>
       </div>
       <div class="row">
-        <Form />
+        <Form id="myForm"/>
       </div>
     </div>
   );
