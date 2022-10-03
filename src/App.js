@@ -2,6 +2,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'react-bootstrap-country-select/dist/react-bootstrap-country-select.css';
 import './App.css';
 import React, { useState, useRef, forwardRef, useReducer } from 'react';
+import { useSelector, useDispatch } from 'react-redux'
 
 const countries = [
   { title: 'Brasil', id: 1 },
@@ -65,6 +66,26 @@ function Days(props) {
   );
 }
 
+export function birthDateReducer(birthDate = new Date(1990,0,1), action){
+  console.log(birthDate);
+  switch(action.type){
+    case 'year_changed':
+      return(new Date(action.year, birthDate.getMonth(), birthDate.getDay()));
+    case 'month_changed':
+      return(
+        new Date(birthDate.getYear(), action.month, birthDate.getDay())
+      );
+    case 'day_changed':
+      return(
+        new Date(birthDate.getYear(), birthDate.getMonth(), action.day)
+      ); 
+    default:
+      return(
+        birthDate
+        );
+  }
+}
+
 function BirthDateEdit(props) {
   
   return (    
@@ -94,7 +115,9 @@ function Form(){
   const countryRef = useRef(null);
   const [country, setCountry] = useState(undefined);
   // const [birthDate, setBirthDate] = useState(new Date(1990,0,1));
-  const [birthDate, dispatch] = useReducer(birthDateReducer, new Date(1990,0,1));
+  //const [birthDate, dispatch] = useReducer(birthDateReducer, new Date(1990,0,1));
+  const dispatch = useDispatch()
+  const birthDate = useSelector((state) => state.formBirthDate);
   const [invalidEmail, setInvalidEmail] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState(undefined);
 
@@ -162,25 +185,6 @@ function Form(){
       })
   }
 
-  function birthDateReducer(birthDate, action){
-    switch(action.type){
-      case 'year_changed':
-        return(new Date(action.year, birthDate.getMonth(), birthDate.getDay()));
-      case 'month_changed':
-        return(
-          new Date(birthDate.getYear(), action.month, birthDate.getDay())
-        );
-      case 'day_changed':
-        return(
-          new Date(birthDate.getYear(), birthDate.getMonth(), action.day)
-        ); 
-      default:
-        return(
-          birthDate
-          );
-    }
-  }
-
   function validateEmail(event){
     const emailValue = event.target.value;
     console.log(emailValue !== '');
@@ -203,7 +207,7 @@ function Form(){
 
   console.log("Form ", birthDate);  
   return (
-    <h1>Register into my awesome system</h1>,
+    <h1>Register</h1>,
     <form onSubmit={handleSubmit}>
       <CountrySelect handleSelect={handleCountryChangedState} ref={countryRef} countryCode={country}/>
       <PhoneNumber ref={phoneRef} countryCode={country} phoneNumber={phoneNumber} onPhoneNumberChange={onPhoneNumberChange}/>
